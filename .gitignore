@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Large size files
+data/
+saved_models/
+
+# Jupyter notebook
+nohup.out
+*.ipynb

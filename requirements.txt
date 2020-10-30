@@ -1,0 +1,6 @@
+torch>=1.6.0
+transformers>=3.1.0
+tqdm>=4.49.0
+numpy>=1.19.2
+scikit-learn>=0.23.2
+TorchCRF>=1.1.0
