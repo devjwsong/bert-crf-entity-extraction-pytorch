@@ -7,7 +7,7 @@ from transformers import *
 from sklearn.metrics import *
 from itertools import chain
 
-
+import constants
 import torch
 import os, sys
 import numpy as np
@@ -18,38 +18,16 @@ import json
 
 
 class Manager():
-    def __init__(self, mode, turn_type, sentence_embedding, ckpt_name=None):
+    def __init__(self, config_path, mode, turn_type, sentence_embedding, ckpt_name=None):
         print("Setting the configurations...")
-        self.config = {
-            'turn_type': turn_type,
-            'device': torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'),
-            'sentence_embedding': sentence_embedding,
-            'bert_name': 'distilbert-base-cased',
-            'learning_rate': 0.00005,
-            'max_len': 128,
-            'batch_size': 8,
-            'num_epochs': 10,
-            'max_time': 10,
-            'dropout': 0.1,
-            'ckpt_dir': 'saved_models',
-            'data_dir': 'data',
-            'train_name': 'train',
-            'valid_name': 'valid',
-            'test_name': 'test',
-            'entity_dir': 'entity',
-            'tag_name': 'class_dict',
-            'utter_split': '[END OF UTTERANCE]',
-            'pad_token': '[PAD]',
-            'cls_token': '[CLS]',
-            'sep_token': '[SEP]',
-            'speaker1_token': '[ASSISTANT]',
-            'speaker2_token': '[USER]',
-            'o_tag': 'O',
-            'context_d_ff': 2048,
-            'context_num_heads': 8,
-            'context_dropout': 0.1,
-            'context_num_layers': 2,
-        }
+        with open(args.config_path, 'r') as f:
+            self.config = json.load(f)
+            
+        if self.config['device'] == "cuda":
+            self.config['device'] = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        elif self.config['device'] == "cpu":
+            self.config['device'] = torch.device('cpu')
+
         bert_config = DistilBertConfig().from_pretrained(self.config['bert_name'])
         self.config['hidden_size'] = bert_config.dim
         self.config['p_dim'] = self.config['hidden_size']
@@ -241,6 +219,7 @@ class Manager():
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--config_path', required=True, type=str, help="The path to configuration file.")
     parser.add_argument('--mode', required=True, type=str, help="Train or test?")
     parser.add_argument('--turn_type', required=True, type=str, help="Single-turn or multi-turn?")
     parser.add_argument('--sentence_embedding', required=False, type=str, help="How to embed a sentence?")
@@ -256,15 +235,15 @@ if __name__=='__main__':
               
     if args.mode == 'train':
         if args.ckpt_name is not None:
-            manager = Manager(args.mode, args.turn_type, args.sentence_embedding, ckpt_name=args.ckpt_name)
+            manager = Manager(args.config_path, args.mode, args.turn_type, args.sentence_embedding, ckpt_name=args.ckpt_name)
         else:
-            manager = Manager(args.mode, args.turn_type, args.sentence_embedding)
+            manager = Manager(args.config_path, args.mode, args.turn_type, args.sentence_embedding)
               
         manager.train()
         
     elif args.mode == 'test':
         assert args.ckpt_name is not None, "Please specify the trained model checkpoint."
         
-        manager = Manager(args.mode, args.turn_type, args.sentence_embedding, ckpt_name=args.ckpt_name)
+        manager = Manager(args.config_path, args.mode, args.turn_type, args.sentence_embedding, ckpt_name=args.ckpt_name)
         
         manager.test()

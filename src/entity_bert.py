@@ -90,7 +90,7 @@ class EntityBert(nn.Module):
         if self.config['sentence_embedding'] == 'cls':
             return bert_output[:, :, 0]  # (B, T, d_h)
         elif self.config['sentence_embedding'] == 'mean':
-            return torch.mean(bert_output, dim=2).values
+            return torch.mean(bert_output, dim=2)
         elif self.config['sentence_embedding'] == 'max':
             return torch.max(bert_output, dim=2).values
         
