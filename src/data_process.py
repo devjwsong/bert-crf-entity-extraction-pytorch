@@ -6,7 +6,7 @@ import json
 
 
 data_dir = "data"
-total_dir = "total"
+original_dir = "original"
 entity_dir = "entity"
 utter_split = "[END OF UTTERANCE]"
 dialogue_split = "[END OF DIALOGUE]"
@@ -166,11 +166,11 @@ if __name__=='__main__':
     
     class_dict = {'O': 0}
     
-    file_list = os.listdir(f"{data_dir}/{total_dir}")
+    file_list = os.listdir(f"{data_dir}/{original_dir}")
     for file in file_list:
-        if os.path.isfile(f"{data_dir}/{total_dir}/{file}"):
+        if os.path.isfile(f"{data_dir}/{original_dir}/{file}"):
             print(f"Processing {file}...")
-            tokens, tags = load_file(f"{data_dir}/{total_dir}/{file}", tokenizer)
+            tokens, tags = load_file(f"{data_dir}/{original_dir}/{file}", tokenizer)
             train_tokens, train_tags = tokens[:int(len(tokens)*train_frac)], tags[:int(len(tags)*train_frac)]
             remained_tokens, remained_tags = tokens[int(len(tokens)*train_frac):], tags[int(len(tags)*train_frac):]
 
