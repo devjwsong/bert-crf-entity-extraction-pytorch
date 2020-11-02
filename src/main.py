@@ -7,7 +7,6 @@ from transformers import *
 from sklearn.metrics import *
 from itertools import chain
 
-import constants
 import torch
 import os, sys
 import numpy as np
@@ -18,7 +17,7 @@ import json
 
 
 class Manager():
-    def __init__(self, config_path, mode, turn_type, sentence_embedding, ckpt_name=None):
+    def __init__(self, mode, turn_type, sentence_embedding, config_path, ckpt_name=None):
         print("Setting the configurations...")
         with open(args.config_path, 'r') as f:
             self.config = json.load(f)
@@ -27,6 +26,10 @@ class Manager():
             self.config['device'] = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         elif self.config['device'] == "cpu":
             self.config['device'] = torch.device('cpu')
+            
+        self.config['mode'] = mode
+        self.config['turn_type'] = turn_type
+        self.config['sentence_embedding'] = sentence_embedding
 
         bert_config = DistilBertConfig().from_pretrained(self.config['bert_name'])
         self.config['hidden_size'] = bert_config.dim
@@ -45,7 +48,7 @@ class Manager():
         # Load class dictionary
         print("Loading the class dictionary...")
         full_dir = f"{self.config['data_dir']}/{self.config['entity_dir']}"
-        with open(f"{full_dir}/{self.config['tag_name']}.json", 'r') as f:
+        with open(f"{full_dir}/{self.config['tags_name']}.json", 'r') as f:
             class_dict = json.load(f)
         self.config['num_classes'] = len(class_dict)
         
@@ -70,7 +73,7 @@ class Manager():
             print("Initializing the model...")
             self.model.init_model()
             
-        print("Loading data...")
+        print(f"Loading {self.config['turn_type']}-turn data...")
         if mode == 'train':
             # Load train & valid dataset
             train_set = CustomDataset(f"{full_dir}/{self.config['train_name']}", self.tokenizer, self.config, class_dict)
@@ -95,15 +98,18 @@ class Manager():
             train_pred = []
             train_true = []
             for i, batch in enumerate(tqdm(self.train_loader)):
-                batch_x, batch_y, batch_lens, batch_times = batch                
-                batch_x, batch_y, batch_times = \
-                    batch_x.to(self.config['device']), batch_y.to(self.config['device']), batch_times.to(self.config['device'])
-                
+                batch_x, batch_y, batch_lens, batch_times = batch
                 batch_times = batch_times.squeeze(-1)  # (B)
                 batch_lens = batch_lens.squeeze(-1)  # (B)
-                
                 pad_id = self.tokenizer._convert_token_to_id(self.config['pad_token'])
-                log_likelihood, tag_seq = self.model(batch_x, pad_id, batch_times, tags=batch_y)  #(), (B, L)
+                
+                if self.config['turn_type'] == 'single':
+                    batch_x, batch_y = batch_x.to(self.config['device']), batch_y.to(self.config['device'])
+                    log_likelihood, tag_seq = self.model(batch_x, pad_id, batch_y)  # (), (B, L)
+                elif self.config['turn_type'] == 'multi':
+                    batch_x, batch_y, batch_times = \
+                        batch_x.to(self.config['device']), batch_y.to(self.config['device']), batch_times.to(self.config['device'])
+                    log_likelihood, tag_seq = self.model(batch_x, pad_id, batch_y, times=batch_times)  # (), (B, L)
                 
                 loss = -1 * log_likelihood
                 
@@ -153,15 +159,18 @@ class Manager():
         valid_true = []
         with torch.no_grad():
             for i, batch in enumerate(tqdm(self.valid_loader)):
-                batch_x, batch_y, batch_lens, batch_times = batch                
-                batch_x, batch_y, batch_times = \
-                    batch_x.to(self.config['device']), batch_y.to(self.config['device']), batch_times.to(self.config['device'])
-                
+                batch_x, batch_y, batch_lens, batch_times = batch
                 batch_times = batch_times.squeeze(-1)  # (B)
                 batch_lens = batch_lens.squeeze(-1)  # (B)
-                
                 pad_id = self.tokenizer._convert_token_to_id(self.config['pad_token'])
-                log_likelihood, tag_seq = self.model(batch_x, pad_id, batch_times, tags=batch_y)  #(), (B, L)
+                
+                if self.config['turn_type'] == 'single':
+                    batch_x, batch_y = batch_x.to(self.config['device']), batch_y.to(self.config['device'])
+                    log_likelihood, tag_seq = self.model(batch_x, pad_id, batch_y)  # (), (B, L)
+                elif self.config['turn_type'] == 'multi':
+                    batch_x, batch_y, batch_times = \
+                        batch_x.to(self.config['device']), batch_y.to(self.config['device']), batch_times.to(self.config['device'])
+                    log_likelihood, tag_seq = self.model(batch_x, pad_id, batch_y, times=batch_times)  # (), (B, L)
                 
                 loss = -1 * log_likelihood
                 
@@ -189,15 +198,18 @@ class Manager():
         test_true = []
         with torch.no_grad():
             for i, batch in enumerate(tqdm(self.test_loader)):
-                batch_x, batch_y, batch_lens, batch_times = batch                
-                batch_x, batch_y, batch_times = \
-                    batch_x.to(self.config['device']), batch_y.to(self.config['device']), batch_times.to(self.config['device'])
-                
+                batch_x, batch_y, batch_lens, batch_times = batch
                 batch_times = batch_times.squeeze(-1)  # (B)
                 batch_lens = batch_lens.squeeze(-1)  # (B)
-                
                 pad_id = self.tokenizer._convert_token_to_id(self.config['pad_token'])
-                log_likelihood, tag_seq = self.model(batch_x, pad_id, batch_times, tags=batch_y)  #(), (B, L)
+                
+                if self.config['turn_type'] == 'single':
+                    batch_x, batch_y = batch_x.to(self.config['device']), batch_y.to(self.config['device'])
+                    log_likelihood, tag_seq = self.model(batch_x, pad_id, batch_y)  # (), (B, L)
+                elif self.config['turn_type'] == 'multi':
+                    batch_x, batch_y, batch_times = \
+                        batch_x.to(self.config['device']), batch_y.to(self.config['device']), batch_times.to(self.config['device'])
+                    log_likelihood, tag_seq = self.model(batch_x, pad_id, batch_y, times=batch_times)  # (), (B, L)
                 
                 loss = -1 * log_likelihood
                 
@@ -235,15 +247,15 @@ if __name__=='__main__':
               
     if args.mode == 'train':
         if args.ckpt_name is not None:
-            manager = Manager(args.config_path, args.mode, args.turn_type, args.sentence_embedding, ckpt_name=args.ckpt_name)
+            manager = Manager(args.mode, args.turn_type, args.sentence_embedding, args.config_path, ckpt_name=args.ckpt_name)
         else:
-            manager = Manager(args.config_path, args.mode, args.turn_type, args.sentence_embedding)
+            manager = Manager(args.mode, args.turn_type, args.sentence_embedding, args.config_path)
               
         manager.train()
         
     elif args.mode == 'test':
         assert args.ckpt_name is not None, "Please specify the trained model checkpoint."
         
-        manager = Manager(args.config_path, args.mode, args.turn_type, args.sentence_embedding, ckpt_name=args.ckpt_name)
+        manager = Manager(args.mode, args.turn_type, args.sentence_embedding, args.config_path, ckpt_name=args.ckpt_name)
         
         manager.test()

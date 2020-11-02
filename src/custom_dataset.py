@@ -37,44 +37,71 @@ class CustomDataset(Dataset):
         self.lens = []
         self.times = []
         
+        if config['turn_type'] == 'single':
+            self.process_single_turn(input_lines, label_lines)
+        elif config['turn_type'] == 'multi':
+            self.process_multi_turn(input_lines, label_lines)
+            
+        self.x = torch.LongTensor(self.x)  # (N, L) or (N, T, L)
+        self.y = torch.LongTensor(self.y)  # (N, L)
+        self.lens = torch.LongTensor(self.lens)  # (N)
+        self.times = torch.LongTensor(self.times)  # (N)
+
+    def process_single_turn(self, input_lines, label_lines):
+        for i, input_line in enumerate(tqdm(input_lines)):
+            utter = input_line.split(self.utter_split)[-1] 
+            tags = label_lines[i].split(' ')  # (L)
+            tags = [int(tag) for tag in tags] # (L)
+    
+            speaker = utter.split('\t')[0]
+            tokens = utter.split('\t')[1].split(' ')
+            tokens = [int(token) for token in tokens]
+            
+            if speaker == self.speaker1_token:
+                speaker_id = self.speaker1_id
+            elif speaker == self.speaker2_token:
+                speaker_id = self.speaker2_id
+                
+            tokens, tags, valid_len = self.pad_or_truncate(tokens, speaker_id, tags)
+            
+            self.x.append(tokens)
+            self.y.append(tags)
+            self.lens.append(valid_len)
+            self.times.append(0)
+    
+    def process_multi_turn(self, input_lines, label_lines):
         for i, input_line in enumerate(tqdm(input_lines)):
             utters = input_line.split(self.utter_split)  # (T)
             tags = label_lines[i].split(' ')  # (L)
             tags = [int(tag) for tag in tags] # (L)
-            
+
             init_sent = [self.cls_id, self.sep_id] + [self.pad_id] * (self.max_len-2)
             history = [init_sent for i in range(self.max_time)]
-            
+
             valid_len = -1
             time = len(utters)-1
             for t, utter in enumerate(utters):
                 speaker = utter.split('\t')[0]
                 tokens = utter.split('\t')[1].split(' ')
                 tokens = [int(token) for token in tokens]
-                
+
                 if speaker == self.speaker1_token:
                     speaker_id = self.speaker1_id
                 elif speaker == self.speaker2_token:
                     speaker_id = self.speaker2_id
-                    
+
                 if t == time:
                     tokens, tags, valid_len = self.pad_or_truncate(tokens, speaker_id, tags)
                     history[t] = tokens
                 else:
                     tokens, _, _ = self.pad_or_truncate(tokens, speaker_id)
                     history[t] = tokens
-                    
+
             self.x.append(history)
             self.y.append(tags)
             self.lens.append(valid_len)
             self.times.append(time)
-            
-        self.x = torch.LongTensor(self.x)  # (N, T, L)
-        self.y = torch.LongTensor(self.y)  # (N, L)
-        self.lens = torch.LongTensor(self.lens)  # (N)
-        self.times = torch.LongTensor(self.times)  # (N)
-
-            
+    
     def pad_or_truncate(self, tokens, speaker_id, tags=None):
         tokens = [self.cls_id] + tokens + [self.sep_id, speaker_id, self.sep_id]
         

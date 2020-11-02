@@ -44,8 +44,8 @@ class EntityBert(nn.Module):
         self.position_wise_ff = nn.Linear(output_dim, self.config['num_classes'])
         self.crf = CRF(self.config['num_classes'], batch_first=True)
         
-    def forward(self, x, pad_id, times, tags=None):
-        if self.config['turn_type'] == 'multi':
+    def forward(self, x, pad_id, tags, times=None):
+        if times is not None:
             bert_mask = self.make_bert_mask(x, pad_id)  # (B, T, L)
             e_mask = self.make_encoder_mask(times)  # (B, T)
             
@@ -64,20 +64,15 @@ class EntityBert(nn.Module):
             output = torch.cat((output, context_vec.unsqueeze(1).repeat(1,self.config['max_len'],1)), dim=-1)  # (B, L, 2*d_h)
             
             x_mask = bert_mask[torch.arange(bert_mask.shape[0]), times]  # (B, L)
-        elif self.config['turn_type'] == 'single':
-            x_input = x[torch.arange(x.shape[0]), times]  # (B, L)
-            x_mask = self.make_bert_mask(x_input, pad_id)  # (B, L)
+        else:
+            x_mask = self.make_bert_mask(x, pad_id)  # (B, L)
         
-            output = self.bert(input_ids=x_input, attention_mask=x_mask)[0]  # (B, L, d_h)
+            output = self.bert(input_ids=x, attention_mask=x_mask)[0]  # (B, L, d_h)
             
         emissions = self.position_wise_ff(output)  # (B, L, C)
         
-        if tags is not None:
-            log_likelihood, sequence_of_tags = self.crf(emissions, tags, mask=x_mask.bool(), reduction='mean'), self.crf.decode(emissions, mask=x_mask.bool())
-            return log_likelihood, sequence_of_tags  # (), (B, L)
-        else:
-            sequence_of_tags = self.crf.decode(emissions, mask=x_mask.bool())
-            return sequence_of_tags  # (B, L)
+        log_likelihood, sequence_of_tags = self.crf(emissions, tags, mask=x_mask.bool(), reduction='mean'), self.crf.decode(emissions, mask=x_mask.bool())
+        return log_likelihood, sequence_of_tags  # (), (B, L)
         
     def init_model(self):
         init_list = [self.dropout, self.position_wise_ff, self.crf]

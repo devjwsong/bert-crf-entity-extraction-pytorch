@@ -92,7 +92,7 @@ def save_text(full_dir, dialogues, dialogue_labels):
                 else:
                     history = history[1:] + [utter]
                 
-                f.write(f"{config['upper_split'].join(history)}\n")
+                f.write(f"{config['utter_split'].join(history)}\n")
                 
     with open(f"{full_dir}/labels.txt", 'w') as f:
         for d, dialogue_tags in enumerate(tqdm(dialogue_labels)):
@@ -119,7 +119,7 @@ def save_ids(full_dir, dialogues, dialogue_labels):
                 else:
                     history = history[1:] + [utter]
                 
-                f.write(f"{config['upper_split'].join(history)}\n")
+                f.write(f"{config['utter_split'].join(history)}\n")
 
     with open(f"{full_dir}/labels.ids", 'w') as f:
         for d, dialogue_tags in enumerate(tqdm(dialogue_labels)):
@@ -166,8 +166,8 @@ if __name__=='__main__':
             tokens, tags = load_file(f"{config['data_dir']}/{config['original_dir']}/{file}", tokenizer)
             train_tokens, train_tags = tokens[:int(len(tokens)*config['train_frac'])], tags[:int(len(tags)*config['train_frac'])]
             remained_tokens, remained_tags = tokens[int(len(tokens)*config['train_frac']):], tags[int(len(tags)*config['train_frac']):]
-
-            f = config['valid_frac'] / (1.0-config['train_frac'])
+            
+            f = config['valid_frac'] / (1.0-config['train_frac'])     
             valid_tokens, valid_tags = remained_tokens[:int(len(remained_tokens)*f)], remained_tags[:int(len(remained_tags)*f)]
             test_tokens, test_tags = remained_tokens[int(len(remained_tokens)*f):], remained_tags[int(len(remained_tags)*f):]
 
