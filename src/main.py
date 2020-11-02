@@ -31,13 +31,13 @@ class Manager():
         self.config['turn_type'] = turn_type
         self.config['sentence_embedding'] = sentence_embedding
 
-        bert_config = DistilBertConfig().from_pretrained(self.config['bert_name'])
+        bert_config = BertConfig().from_pretrained(self.config['bert_name'])
         self.config['hidden_size'] = bert_config.dim
         self.config['p_dim'] = self.config['hidden_size']
         
         # Tokenizer & Vocab
         print("Loading the tokenizer...")
-        self.tokenizer = DistilBertTokenizer.from_pretrained(self.config['bert_name'])
+        self.tokenizer = BertTokenizer.from_pretrained(self.config['bert_name'])
         num_new_tokens = self.tokenizer.add_special_tokens(
             {
                 'additional_special_tokens': [self.config['speaker1_token'], self.config['speaker2_token']]

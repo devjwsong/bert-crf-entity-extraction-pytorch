@@ -20,7 +20,7 @@ class EntityBert(nn.Module):
         torch.cuda.manual_seed_all(777)
         random.seed(777)
         
-        self.bert = DistilBertModel.from_pretrained(self.config['bert_name'])
+        self.bert = BertModel.from_pretrained(self.config['bert_name'])
         self.bert.resize_token_embeddings(new_num_tokens = self.config['vocab_size'])
 
         self.dropout = nn.Dropout(self.config['dropout'])

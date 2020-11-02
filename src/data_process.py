@@ -148,7 +148,7 @@ if __name__=='__main__':
         config = json.load(f)
     
     print("Loading the tokenizer...")
-    tokenizer = DistilBertTokenizer.from_pretrained(config['bert_name'])
+    tokenizer = BertTokenizer.from_pretrained(config['bert_name'])
     
     total_train_tokens = []
     total_train_tags = []
