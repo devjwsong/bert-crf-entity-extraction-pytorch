@@ -30,5 +30,5 @@
   "device": "cuda",
   "num_epochs": 2,
   "batch_size": 8,
-  "learning_rate": 0.00005
+  "learning_rate": 5e-5
 }
