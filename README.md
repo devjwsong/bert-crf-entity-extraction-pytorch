@@ -9,7 +9,7 @@ The multi-turn context application is based on **ReCoSa**(the Relevant Contexts 
 
 You can see the details of each model in below descriptions.
 
-<img src="https://user-images.githubusercontent.com/16731987/97832820-1fce5000-1d17-11eb-8628-f582eb2e0d4f.png" alt="The structure of BERT+CRF entity extraction model in the single-turn / multi-turn setting.">
+<img src="https://user-images.githubusercontent.com/16731987/97841292-d981ec80-1d28-11eb-9e85-5275a8412b7c.png" alt="The structure of BERT+CRF entity extraction model in the single-turn / multi-turn setting.">
 
 <br/>
 
