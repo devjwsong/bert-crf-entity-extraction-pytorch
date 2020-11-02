@@ -183,6 +183,8 @@ if __name__=='__main__':
     test_utter_num = count_utter_num(total_test_tokens)
             
     full_dir = f"{config['data_dir']}/{config['entity_dir']}"
+    if not os.path.isdir(full_dir):
+        os.mkdir(full_dir)
     
     print("Making the label dictionary...")
     with open(f"{full_dir}/{config['tags_name']}.json", 'w') as f:
