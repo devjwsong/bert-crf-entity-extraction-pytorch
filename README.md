@@ -28,16 +28,16 @@ The description of each variable is as follows. (Those not introduced in below t
 | `entity_dir`          | `String` | The name of the directory under `data_dir` which contains the processed data with inputs & labels. | `"entity"`             |
 | `utter_split`         | `String` | The string symbol for splitting each utterance in one dialogue. | `"[END OF UTTERANCE]"` |
 | `dialogue_split_line` | `String` | The line for splitting each dialogue in the preprocessed data files. | `"[END OF DIALOGUE]`"  |
-| `train_frac`          | `Number(float)` | The ratio of the conversations to be included in the train set. | `0.8`                  |
-| `valid_frac`          | `Number(float)` | The ratio of the conversations to be included in the validation set. (The remaining portion except the train set and the validation set would become the test set.) | `0.1`                  |
+| `train_frac`          | `Number`(`float`) | The ratio of the conversations to be included in the train set. | `0.8`                  |
+| `valid_frac`          | `Number`(`float`) | The ratio of the conversations to be included in the validation set. (The remaining portion except the train set and the validation set would become the test set.) | `0.1`                  |
 | `train_name`          | `String` | The prefix of the train data files' name.                    | `"train"`              |
 | `valid_name`          | `String` | The prefix of the validation data files' name.               | `"valid"`              |
 | `test_name`           | `String` | The prefix of the test data files' name.                     | `"test"`               |
 | `tags_name`           | `String` | The prefix of the dictionary which has all class names & ids. | `class_dict`           |
 | `outer_split_symbol`  | `String` | The symbol splitting each entity information in one utterance. | `"|||"`                |
 | `inner_split_symbol`  | `String` | The symbol splitting the entity name and the tag in one entity. | `"||"`                 |
-| `max_len`             | `Number(int)` | The maximum length of a sentence.                            | `128`                  |
-| `max_time`            | `Number(int)` | The maximum length of the dialogue history to be attended in the multi-turn setting. | `10`                   |
+| `max_len`             | `Number`(`int`) | The maximum length of a sentence.                            | `128`                  |
+| `max_time`            | `Number`(`int`) | The maximum length of the dialogue history to be attended in the multi-turn setting. | `10`                   |
 | `pad_token`           | `String` | The padding token.                                           | `"[PAD]"`              |
 | `cls_token`           | `String` | The CLS token for BERT.                                      | `"[CLS]"`              |
 | `sep_token`           | `String` | The SEP token for BERT.                                      | `"[SEP]"`              |
@@ -45,16 +45,16 @@ The description of each variable is as follows. (Those not introduced in below t
 | `speaker2_token`      | `String` | The token indicating the speaker 2.                          | `"[USER]"`             |
 | `o_tag`               | `String` | The label indicating the outer entity.                       | `"O"`                  |
 | `bert_name`           | `String` | The BERT model type.                                         | `"bert-base-cased"`    |
-| `dropout`             | `Number(float)` | The dropout rate.                                            | `0.1`                  |
-| `context_d_ff`        | `Number(int)` | The size of intermediate hidden states in the feed-forward layer. | `2048`                 |
-| `context_num_heads`   | `Number(int)` | The number of heads for Multi-head attention.                | `8`                    |
-| `context_dropout`     | `Number(int)` | The dropout rate for the context encoder.                    | `0.1`                  |
-| `context_num_layers`  | `Number(int)` | The number of layers in the context encoder.                 | `2`                    |
+| `dropout`             | `Number`(`float`) | The dropout rate.                                            | `0.1`                  |
+| `context_d_ff`        | `Number`(`int`) | The size of intermediate hidden states in the feed-forward layer. | `2048`                 |
+| `context_num_heads`   | `Number`(`int`) | The number of heads for Multi-head attention.                | `8`                    |
+| `context_dropout`     | `Number`(`int`) | The dropout rate for the context encoder.                    | `0.1`                  |
+| `context_num_layers`  | `Number`(`int`) | The number of layers in the context encoder.                 | `2`                    |
 | `ckpt_dir`            | `String` | The path for saved checkpoints.                              | `"saved_models"`       |
 | `device`              | `String` | The device type. (`"cuda"` or `"cpu"`) If this is set to `"cuda"`, then the device configuration is set to `torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')`. If this variable is `"cpu"`, then the setting becomes just `torch.devcie('cpu')`. | `"cuda"`               |
-| `num_epochs`          | `Number(int)` | The total number of iterations.                              | `10`                   |
-| `batch_size`          | `Number(int)` | The batch size.                                              | `8`                    |
-| `learning_rate`       | `Number(float)` | The learning rate.                                           | `5e-5`                 |
+| `num_epochs`          | `Number`(`int`) | The total number of iterations.                              | `10`                   |
+| `batch_size`          | `Number`(`int`) | The batch size.                                              | `8`                    |
+| `learning_rate`       | `Number`(`float`) | The learning rate.                                           | `5e-5`                 |
 
 <br/>
 
