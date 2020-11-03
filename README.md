@@ -33,7 +33,7 @@ The description of each variable is as follows. (Those not introduced in below t
 | `train_name`          | `String` | The prefix of the train data files' name.                    | `"train"`              |
 | `valid_name`          | `String` | The prefix of the validation data files' name.               | `"valid"`              |
 | `test_name`           | `String` | The prefix of the test data files' name.                     | `"test"`               |
-| `tags_name`           | `String` | The prefix of the dictionary which has all class names & ids. | `class_dict`           |
+| `tags_name`           | `String` | The prefix of the dictionary which has all class names & ids. | `"class_dict"`           |
 | `outer_split_symbol`  | `String` | The symbol splitting each entity information in one utterance. | `"|||"`                |
 | `inner_split_symbol`  | `String` | The symbol splitting the entity name and the tag in one entity. | `"||"`                 |
 | `max_len`             | `Number`(`int`) | The maximum length of a sentence.                            | `128`                  |
