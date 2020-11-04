@@ -23,6 +23,8 @@ The description of each variable is as follows. (Those not introduced in below t
 
 | Argument              | Type     | Description                                                  | Default                |
 | --------------------- | -------- | ------------------------------------------------------------ | ---------------------- |
+| `turn_type` | `String` | The turn type setting. (`"single"` or `"multi"`) | `"single"` |
+| `sentence_embedding` | `String` | The sentence embedding policy when using the multi-turn setting. (`"cls"`: Using [CLS] token. `"max"`: Max pooling. `"Mean"`: Mean pooling.) | `"cls"` |
 | `data_dir`            | `String` | The name of the parent directory where data files are stored. | `"data"`               |
 | `original_dir`        | `String` | The name of the directory under `data_dir` which contains the original data files before pre-processing. | `"original"`           |
 | `entity_dir`          | `String` | The name of the directory under `data_dir` which contains the processed data with inputs & labels. | `"entity"`             |
@@ -125,20 +127,18 @@ Additionally, if you don't need the speaker information, all you need to do is j
 4. Run the below command to train the model you want.
 
    ```shell
-   python src/main.py --mode='train' --turn_type=TURN_TYPE --sentence_embedding=SENTENCE_EMBEDDING_POLICY --config_path=PATH_TO_CONFIGURATION_FILE --ckpt_name=CHECKPOINT_NAME
+   python src/main.py --mode='train' --config_path=PATH_TO_CONFIGURATION_FILE --ckpt_name=CHECKPOINT_NAME
    ```
 
    - `--mode`: You have to specify the mode among two options, `'train'` or `'test'`.
-   - `--turn_type`: This indicates the turn type of this training. You can set either `'single'` or `'multi'`.
-   - `--sentence_embedding`: If you want to train the model in the multi-turn setting, you have to set the sentence embedding method to encode each utterance before it is put into the context encoder. You can set this as `'cls'`(Using CLS token), `'max'`(Max pooling) or `'mean'`(Mean pooling).
    - `--ckpt_name`: This specify the checkpoint file name. This would be the name of trained checkpoint and you can continue your training with this model in the case of resuming training. If you want to conduct training from the beginning, this parameter should be omitted. When testing, this would be the name of the checkpoint you want to test. (default: `None`)
-
+   
    <br/>
 
 5. After training, you can test your model as follows.
 
    ```shell
-   python src/main.py --mode='test' --turn_type=TURN_TYPE --sentence_embedding=SENTENCE_EMBEDDING_POLICY --config_path=PATH_TO_CONFIGURATION_FILE --ckpt_name=CHECKPOINT_NAME
+   python src/main.py --mode='test' --config_path=PATH_TO_CONFIGURATION_FILE --ckpt_name=CHECKPOINT_NAME
    ```
 
 <br/>

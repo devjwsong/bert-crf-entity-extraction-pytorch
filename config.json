@@ -1,4 +1,6 @@
 {
+  "turn_type": "single",
+  "sentence_embedding": "cls",
   "data_dir": "data",
   "original_dir": "original",
   "entity_dir": "entity",

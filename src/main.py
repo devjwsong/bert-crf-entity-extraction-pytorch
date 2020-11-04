@@ -17,7 +17,7 @@ import json
 
 
 class Manager():
-    def __init__(self, mode, turn_type, sentence_embedding, config_path, ckpt_name=None):
+    def __init__(self, mode, config_path, ckpt_name=None):
         print("Setting the configurations...")
         with open(args.config_path, 'r') as f:
             self.config = json.load(f)
@@ -28,8 +28,13 @@ class Manager():
             self.config['device'] = torch.device('cpu')
             
         self.config['mode'] = mode
-        self.config['turn_type'] = turn_type
-        self.config['sentence_embedding'] = sentence_embedding
+        
+        assert self.config['turn_type'] == 'single' or self.config['turn_type'] == 'multi', print("Please specify a correct turn type, either 'single' or 'multi'.")
+        print(f"{self.config['turn_type'].title()}-turn setting fixed.")
+        if self.config['turn_type'] == 'multi':
+            assert self.config['sentence_embedding'] == 'cls' or self.config['sentence_embedding'] == 'max' or self.config['sentence_embedding'] == 'mean', \
+                print("Please specify a correct sentence embedding method among these three, 'cls', 'max' and 'mean'.")
+            print(f"Sentence embedding policy is {self.config['sentence_embedding']}.")
 
         bert_config = BertConfig().from_pretrained(self.config['bert_name'])
         self.config['hidden_size'] = bert_config.dim
@@ -233,29 +238,23 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_path', required=True, type=str, help="The path to configuration file.")
     parser.add_argument('--mode', required=True, type=str, help="Train or test?")
-    parser.add_argument('--turn_type', required=True, type=str, help="Single-turn or multi-turn?")
-    parser.add_argument('--sentence_embedding', required=False, type=str, help="How to embed a sentence?")
     parser.add_argument('--ckpt_name', required=False, type=str, help="Best checkpoint file.")
               
     args = parser.parse_args()
     
     assert args.mode == 'train' or args.mode=='test', print("Please specify a correct mode name, 'train' or 'test'.")
-    assert args.turn_type == 'single' or args.turn_type=='multi', print("Please specify a correct turn type, 'single' or 'multi'.")
-    
-    if args.turn_type == 'multi':
-        assert args.sentence_embedding == 'cls' or args.sentence_embedding == 'mean' or args.sentence_embedding == 'max', print("Please specify a correct sentence embedding method among 'cls', 'mean', and 'max'.")
               
     if args.mode == 'train':
         if args.ckpt_name is not None:
-            manager = Manager(args.mode, args.turn_type, args.sentence_embedding, args.config_path, ckpt_name=args.ckpt_name)
+            manager = Manager(args.mode, args.config_path, ckpt_name=args.ckpt_name)
         else:
-            manager = Manager(args.mode, args.turn_type, args.sentence_embedding, args.config_path)
+            manager = Manager(args.mode, args.config_path)
               
         manager.train()
         
     elif args.mode == 'test':
         assert args.ckpt_name is not None, "Please specify the trained model checkpoint."
         
-        manager = Manager(args.mode, args.turn_type, args.sentence_embedding, args.config_path, ckpt_name=args.ckpt_name)
+        manager = Manager(args.mode, args.config_path, ckpt_name=args.ckpt_name)
         
         manager.test()
