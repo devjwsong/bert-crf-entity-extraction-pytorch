@@ -140,6 +140,8 @@ class Manager():
             valid_loss, valid_acc, valid_f1 = self.validation()
               
             if valid_f1 > self.best_f1:
+                self.best_f1 = valid_f1                         
+                                     
                 state_dict = {
                     'model_state_dict': self.model.state_dict(),
                     'optim_state_dict': self.optim.state_dict(),
@@ -148,7 +150,6 @@ class Manager():
               
                 torch.save(state_dict, f"{self.config['ckpt_dir']}/best_ckpt.tar")
                 print(f"***** Current best checkpoint is saved. *****")
-                self.best_f1 = valid_f1
               
             print(f"Best validtion f1 score: {self.best_f1}")
             print(f"Validation loss: {valid_loss} || Validation accuracy: {valid_acc} || Current validation F1 score: {valid_f1}")
