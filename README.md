@@ -1,9 +1,9 @@
-# bert-crf-entity-recognition-pytorch
-This repository is for the entity recognition task using the pre-trained **BERT**[[1]](#1) and the additional **CRF**(Conditional Random Field)[[2]](#2) layer.
+# bert-crf-entity-extraction-pytorch
+This repository is for the entity extraction task using the pre-trained **BERT**[[1]](#1) and the additional **CRF**(Conditional Random Field)[[2]](#2) layer.
 
 Originally, this project has been conducted for dialogue datasets, so it contains both <u>single-turn</u> setting and <u>multi-turn</u> setting.
 
-The single-turn setting is the same as the basic entity extraction task, but the multi-turn one is a little bit different since it considers the dialogue contexts(previous histories) to conduct the entity recognition task to current utterance.
+The single-turn setting is the same as the basic entity extraction task, but the multi-turn one is a little bit different since it considers the dialogue contexts(previous histories) to conduct the entity extraction task to current utterance.
 
 The multi-turn context application is based on **ReCoSa**(the Relevant Contexts with Self-attention)[[3]](#3) structure.
 
@@ -15,48 +15,47 @@ You can see the details of each model in below descriptions.
 
 ---
 
-### Configuarations
+### Arguments
 
-You can set various arguments by modifying `config.json` in top directory.
-
-The description of each variable is as follows. (Those not introduced in below table are set automatically and should not be changed.)
+**Arguments for data pre-processing**
 
 | Argument              | Type     | Description                                                  | Default                |
 | --------------------- | -------- | ------------------------------------------------------------ | ---------------------- |
-| `turn_type` | `String` | The turn type setting. (`"single"` or `"multi"`) | `"single"` |
-| `sentence_embedding` | `String` | The sentence embedding policy when using the multi-turn setting. (`"cls"`: Using [CLS] token. `"max"`: Max pooling. `"Mean"`: Mean pooling.) | `"cls"` |
-| `data_dir`            | `String` | The name of the parent directory where data files are stored. | `"data"`               |
-| `original_dir`        | `String` | The name of the directory under `data_dir` which contains the original data files before pre-processing. | `"original"`           |
-| `entity_dir`          | `String` | The name of the directory under `data_dir` which contains the processed data with inputs & labels. | `"entity"`             |
-| `utter_split`         | `String` | The string symbol for splitting each utterance in one dialogue. | `"[END OF UTTERANCE]"` |
-| `dialogue_split_line` | `String` | The line for splitting each dialogue in the preprocessed data files. | `"[END OF DIALOGUE]`"  |
-| `train_frac`          | `Number`(`float`) | The ratio of the conversations to be included in the train set. | `0.8`                  |
-| `valid_frac`          | `Number`(`float`) | The ratio of the conversations to be included in the validation set. (The remaining portion except the train set and the validation set would become the test set.) | `0.1`                  |
-| `train_name`          | `String` | The prefix of the train data files' name.                    | `"train"`              |
-| `valid_name`          | `String` | The prefix of the validation data files' name.               | `"valid"`              |
-| `test_name`           | `String` | The prefix of the test data files' name.                     | `"test"`               |
-| `tags_name`           | `String` | The prefix of the dictionary which has all class names & ids. | `"class_dict"`           |
-| `outer_split_symbol`  | `String` | The symbol splitting each entity information in one utterance. | `"$$$"`                |
-| `inner_split_symbol`  | `String` | The symbol splitting the entity name and the tag in one entity. | `"$$"`                 |
-| `max_len`             | `Number`(`int`) | The maximum length of a sentence.                            | `128`                  |
-| `max_time`            | `Number`(`int`) | The maximum length of the dialogue history to be attended in the multi-turn setting. | `10`                   |
-| `pad_token`           | `String` | The padding token.                                           | `"[PAD]"`              |
-| `cls_token`           | `String` | The CLS token for BERT.                                      | `"[CLS]"`              |
-| `sep_token`           | `String` | The SEP token for BERT.                                      | `"[SEP]"`              |
-| `speaker1_token`      | `String` | The token indicating the speaker 1.                          | `"[ASSISTANT]"`        |
-| `speaker2_token`      | `String` | The token indicating the speaker 2.                          | `"[USER]"`             |
-| `o_tag`               | `String` | The label indicating the outer entity.                       | `"O"`                  |
-| `bert_name`           | `String` | The BERT model type.                                         | `"bert-base-cased"`    |
-| `dropout`             | `Number`(`float`) | The dropout rate.                                            | `0.1`                  |
-| `context_d_ff`        | `Number`(`int`) | The size of intermediate hidden states in the feed-forward layer. | `2048`                 |
-| `context_num_heads`   | `Number`(`int`) | The number of heads for Multi-head attention.                | `8`                    |
-| `context_dropout`     | `Number`(`int`) | The dropout rate for the context encoder.                    | `0.1`                  |
-| `context_num_layers`  | `Number`(`int`) | The number of layers in the context encoder.                 | `2`                    |
-| `ckpt_dir`            | `String` | The path for saved checkpoints.                              | `"saved_models"`       |
-| `device`              | `String` | The device type. (`"cuda"` or `"cpu"`) If this is set to `"cuda"`, then the device configuration is set to `torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')`. If this variable is `"cpu"`, then the setting becomes just `torch.devcie('cpu')`. | `"cuda"`               |
-| `num_epochs`          | `Number`(`int`) | The total number of iterations.                              | `10`                   |
-| `batch_size`          | `Number`(`int`) | The batch size.                                              | `8`                    |
-| `learning_rate`       | `Number`(`float`) | The learning rate.                                           | `5e-5`                 |
+| `seed`        | `int`   | The random seed.                                             | `0`                   |
+| `data_dir`    | `str`   | The parent data directory.                                   | `"data"`              |
+| `raw_dir`     | `str`   | The directory which contains the raw data json files.        | `"raw"`               |
+| `save_dir`    | `str`   | The directory which will contain the parsed data pickle files. | `"processed"`         |
+| `bert_type`   | `str`   | The BERT type to load.                                       | `"bert-base-uncased"` |
+| `train_ratio` | `float` | The ratio of train set to the total number of dialogues in each file. | `0.8`                 |
+
+<br/>
+
+**Arguments for training/evaluating**
+
+| Argument             | Type    | Description                                                  | Default               |
+| -------------------- | ------- | ------------------------------------------------------------ | --------------------- |
+| `seed`               | `int`   | The random seed.                                             | `0`                   |
+| `turn_type`          | `str`   | The turn type setting. (`"single"` or `"multi"`)             | *YOU SHOULD SPECIFY*  |
+| `bert_type`          | `str`   | The BERT type to load.                                       | `"bert-base-uncased"` |
+| `pooling`            | `str`   | The pooling policy when using the multi-turn setting.        | `"cls"`               |
+| `data_dir`           | `str`   | The parent data directory.                                   | `"data"`              |
+| `processed_dir`      | `str`   | The directory which contains the parsed data pickle files.   | `"processed"`         |
+| `ckpt_dir`           | `str`   | The path for saved checkpoints.                              | `"saved_models"`      |
+| `gpu`                | `int`   | The index of a GPU to use.                                   | `0`                   |
+| `sp1_token`          | `str`   | The speaker1(USER) token.                                    | `"[USR]"`             |
+| `sp2_token`          | `str`   | The speaker2(SYSTEM) token.                                  | `"[SYS]"`             |
+| `max_len`            | `int`   | The max length of each utterance.                            | `128`                 |
+| `max_turns`          | `int`   | The maximum number of the dialogue history to be attended in the multi-turn setting. | `5`                   |
+| `dropout`            | `float` | The dropout rate.                                            | `0.1`                 |
+| `context_d_ff`       | `int`   | The size of intermediate hidden states in the feed-forward layer. | `2048`                |
+| `context_num_heads`  | `int`   | The number of heads for the multi-head attention.            | `8`                   |
+| `context_dropout`    | `float` | The dropout rate for the context encoder.                    | `0.1`                 |
+| `context_num_layers` | `int`   | The number of layers in the context encoder.                 | `2`                   |
+| `learning_rate`      | `float` | The initial learning rate.                                   | `5e-5`                |
+| `warmup_ratio`       | `float` | The ratio of warmup steps to the total training steps.       | `0.1`                 |
+| `batch_size`         | `int`   | The batch size.                                              | `8`                   |
+| `num_workers`        | `int`   | The number of sub-processes for data loading.                | `4`                   |
+| `num_epochs`         | `int`   | The number of training epochs.                               | `10`                  |
 
 <br/>
 
@@ -64,25 +63,11 @@ The description of each variable is as follows. (Those not introduced in below t
 
 ### Dataset
 
-This repository includes the Google's Taskmaster-2[[4]](#4) dataset which is processed for entity recognition task beforehand.
+This repository uses the Google's Taskmaster-2[[4]](#4) dataset for entity extraction task.
 
-The `samples` directory has the files for each domain which has the speaker identity, utterances and entities.
+You should first download the data (`"TM-2-2020"`), and get all json files in `"TM-2-2020/data"` directory to properly run this project.
 
-If you want to use these samples, you just have to move all files in `samples` to `{data_dir}/{original_dir}`.
-
-<br/>
-
-If you want to use your own data, please make the data files fit into the formats of the samples I mentioned above.
-
-The description of these formats is as follows. (Make sure that all symbols are compatible with the configurations above.)
-
-<img src="https://user-images.githubusercontent.com/16731987/97839217-121fc700-1d25-11eb-8688-0f3b8b2a63be.png" alt="The description for data processing when using dialogue datasets.">
-
-<br/>
-
-The case that you don't want the multi-turn setting(only with the single-turn) is not different since you just make `{dialogue_split_line}` split each utterance line.
-
-Additionally, if you don't need the speaker information, all you need to do is just putting a dummy string into the speaker position.
+You can see the detailes for using the Taskmaster-2 dataset in the next section.
 
 <br/>
 
@@ -98,48 +83,60 @@ Additionally, if you don't need the speaker information, all you need to do is j
 
    <br/>
 
-2. Make the directory `{data_dir}/{original_dir}` and put the sample files or your own data processed like in the previous section.
+2. Make the directory `{data_dir}/{raw_dir}` and put the json files, as mentioned in the previous section.
 
    In default setting, the structure of whole data directory should be like below.
 
-   - `data`
-     - `original`
-       - `flights.txt`
-       - `food-ordering.txt`
-       - `hotels.txt`
-       - `movies.txt`
-       - `music.txt`
-       - `restaurant-search.txt`
-       - `sports.txt`
+   ```
+   data
+   └--raw
+       └--flight.json
+       └--food-ordering.json
+       └--hotels.json
+       └--movies.json
+       └--music.json
+       └--restaurant-search.json
+       └--sports.json
+   ```
 
    <br/>
 
-3. Run the data processing codes.
+3. Run the data processing script.
 
    ```shell
-   python src/data_process.py --config_path=PATH_TO_CONFIGURATION_FILE
+   sh exec_data_processing.sh
    ```
 
-   - `--config_path`: This indicates the path to the configuration file. (default: `config.json`)
+   After running it, you will get the processed files like below in the default setting.
+
+   ```
+   data
+   └--raw
+       └--flight.json
+       └--food-ordering.json
+       └--hotels.json
+       └--movies.json
+       └--music.json
+       └--restaurant-search.json
+       └--sports.json
+   └--processed
+       └--class_dict.json
+       └--train_tokens.pkl
+       └--train_tags.pkl
+       └--valid_tokens.pkl
+       └--valid_tags.pkl
+       └--test_tokens.pkl
+       └--test_tags.pkl
+   ```
 
    <br/>
 
-4. Run the below command to train the model you want.
+4. Run the main script and check the results.
 
    ```shell
-   python src/main.py --mode='train' --config_path=PATH_TO_CONFIGURATION_FILE --ckpt_name=CHECKPOINT_NAME
+   sh exec_main.sh
    ```
 
-   - `--mode`: You have to specify the mode among two options, `'train'` or `'test'`.
-   - `--ckpt_name`: This specify the checkpoint file name. This would be the name of trained checkpoint and you can continue your training with this model in the case of resuming training. If you want to conduct training from the beginning, this parameter should be omitted. When testing, this would be the name of the checkpoint you want to test. (default: `None`)
-   
-   <br/>
-
-5. After training, you can test your model as follows.
-
-   ```shell
-   python src/main.py --mode='test' --config_path=PATH_TO_CONFIGURATION_FILE --ckpt_name=CHECKPOINT_NAME
-   ```
 
 <br/>
 

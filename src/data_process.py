@@ -94,7 +94,7 @@ if __name__=='__main__':
     parser.add_argument('--raw_dir', default="raw", type=str, help="The directory which contains the raw data json files.")
     parser.add_argument('--save_dir', default="processed", type=str, help="The directory which will contain the parsed data pickle files.")
     parser.add_argument('--bert_type', default="bert-base-uncased", type=str, help="The BERT type to load.")
-    parser.add_argument('--train_ratio', default=0.8, type=float, help="The ratio of train set to the number of each domain file.")
+    parser.add_argument('--train_ratio', default=0.8, type=float, help="The ratio of train set to the total number of dialogues in each file.")
     
     args = parser.parse_args()
     
