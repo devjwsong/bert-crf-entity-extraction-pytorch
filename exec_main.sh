@@ -1,0 +1,23 @@
+python src/main.py \
+    --seed=0 \
+    --turn_type=TURN_TYPE \
+    --bert_type="bert-base-uncased" \
+    --pooling="max" \
+    --data_dir="data" \
+    --processed_dir="processed" \
+    --ckpt_dir="saved_models" \
+    --gpu="0" \
+    --sp1_token="[USR]" \
+    --sp2_token="[SYS]" \
+    --max_len=128 \
+    --max_turns=5 \
+    --dropout=0.1 \
+    --context_d_ff=2048 \
+    --context_num_heads=8 \
+    --context_dropout=0.1 \
+    --context_num_layers=2 \
+    --learning_rate=5e-5 \
+    --warmup_ratio=0.1 \
+    --batch_size=8 \
+    --num_workers=4 \
+    --num_epochs=10

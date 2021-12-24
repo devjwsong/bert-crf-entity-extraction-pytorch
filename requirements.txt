@@ -2,3 +2,4 @@ torch==1.7.1
 transformers==4.11.3
 scikit-learn==1.0.1
 pytorch-crf==0.7.2
+seqeval==1.2.2

@@ -101,6 +101,12 @@ if __name__=='__main__':
     random.seed(args.seed)
     
     print("Loading the tokenizer...")
+    assert args.bert_type in [
+        "bert-base-uncased",
+        "bert-base-cased",
+        "bert-large-uncased",
+        "bert-large-cased"
+    ]
     tokenizer = BertTokenizer.from_pretrained(args.bert_type)
     
     total_train_tokens = []
