@@ -137,6 +137,18 @@ You can see the detailes for using the Taskmaster-2 dataset in the next section.
    sh exec_main.sh
    ```
 
+<br/>
+
+---
+
+### Results
+
+| Turn type | Pooling | Validation F1 | Test F1    |
+| --------- | ------- | ------------- | ---------- |
+| Single    | -       | 0.6719        | 0.6755     |
+| Multi     | CLS     | **0.7148**    | **0.7118** |
+| Multi     | Mean    | 0.7132        | 0.7095     |
+| Multi     | Max     | 0.7116        | 0.7104     |
 
 <br/>
 
